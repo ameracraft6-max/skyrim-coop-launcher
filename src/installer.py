@@ -312,9 +312,24 @@ class Installer:
             data[hook_raw : hook_raw + len(hook_bytes)] = hook_bytes
             data[cave_raw : cave_raw + len(code)] = code
 
+            # 2. Patch SkyrimVM virtualMachine field offset for modern Skyrim SE (1.6.1130+ / 1.7.104+)
+            # In modern Skyrim SE, virtualMachine shifted from +0x200 to +0x210.
+            # Original: 48 8b 88 00 02 00 00 -> Patched: 48 8b 88 10 02 00 00
+            vm_offsets = [
+                0x292a7a, 0x292d8f, 0x294eda, 0x295192, 0x2962bc, 0x296495, 0x2966b2,
+                0x2ace92, 0x2ad0bd, 0x2ad15d, 0x2b0810, 0x2be573, 0x2be9b4, 0x2bef38, 0x2bfa03
+            ]
+            old_vm = bytes.fromhex("48 8b 88 00 02 00 00")
+            new_vm = bytes.fromhex("48 8b 88 10 02 00 00")
+            vm_patched = 0
+            for off in vm_offsets:
+                if len(data) >= off + 7 and data[off : off+7] == old_vm:
+                    data[off : off+7] = new_vm
+                    vm_patched += 1
+
             with open(exe_path, "wb") as f:
                 f.write(data)
-            print(f"[Installer] Successfully patched {exe_path.name} for modern SteamStub!")
+            print(f"[Installer] Successfully patched {exe_path.name} (SteamStub + {vm_patched} VM offsets)!")
         except Exception as e:
             print(f"[Installer] Warning: Failed to patch {exe_path}: {e}")
 

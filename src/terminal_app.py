@@ -121,7 +121,7 @@ def get_address_library_detailed_status(game_dir: Path) -> Tuple[bool, str]:
     return True, f"{GREEN}[OK] Установлен{RESET}"
 
 def get_together_patch_status(together_exe_path: Optional[Path]) -> Tuple[bool, str]:
-    """Checks if SkyrimTogether.exe has the modern SteamStub code-cave patch."""
+    """Checks if SkyrimTogether.exe has the modern SteamStub and SkyrimVM 0x210 patches."""
     if not together_exe_path or not together_exe_path.exists():
         return False, f"{RED}[X] Не установлен{RESET}"
 
@@ -130,12 +130,19 @@ def get_together_patch_status(together_exe_path: Optional[Path]) -> Tuple[bool, 
             # Check hook offset: 0x2688c4
             f.seek(0x2688c4)
             b = f.read(1)
-            if b == b"\xe9":
-                return True, f"{GREEN}[OK] Установлен и пропатчен (SteamStub Fix активен){RESET}"
-            elif b == b"\x48":
-                return False, f"{YELLOW}[!] Установлен, но НЕ пропатчен (Нужно исправить! Пункт [4]){RESET}"
-            else:
-                return True, f"{GREEN}[OK] Установлен ({together_exe_path.name}){RESET}"
+            # Check VM offset: 0x2ad15d
+            f.seek(0x2ad15d)
+            vm = f.read(7)
+
+        is_steamstub = (b == b"\xe9")
+        is_vm = (vm == bytes.fromhex("48 8b 88 10 02 00 00"))
+
+        if is_steamstub and is_vm:
+            return True, f"{GREEN}[OK] Установлен и пропатчен (SteamStub + SkyrimVM 1.7+ Fix){RESET}"
+        elif not is_steamstub or not is_vm:
+            return False, f"{YELLOW}[!] Установлен, но НЕ пропатчен (Нужно исправить! Пункт [4]){RESET}"
+        else:
+            return True, f"{GREEN}[OK] Установлен ({together_exe_path.name}){RESET}"
     except Exception:
         return True, f"{GREEN}[OK] Установлен{RESET}"
 
@@ -284,7 +291,8 @@ class TerminalLauncherApp:
 
         try:
             # CRITICAL: working directory MUST be game_dir
-            subprocess.Popen([str(st_exe)], cwd=str(self.game_dir))
+            creationflags = (subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP) if os.name == 'nt' else 0
+            subprocess.Popen([str(st_exe)], cwd=str(self.game_dir), creationflags=creationflags)
             print(f"\n{GREEN}{BOLD}[OK] Игра успешно запущена!{RESET}")
             print(f"{YELLOW}Совет: В главном меню игры нажмите клавишу F2 или Right Ctrl для подключения к серверу.{RESET}")
         except Exception as e:
