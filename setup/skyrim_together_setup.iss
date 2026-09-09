@@ -34,12 +34,12 @@ russian.SelectDirBrowseLabel=Выберите корневую папку с у�
 Source: "E:\NEW WORLD\SkyrimCoopLauncher\setup\files\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
-Name: "{group}\Skyrim Together (Играть)"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}\Data\SkyrimTogetherReborn"
+Name: "{group}\Skyrim Together (Играть)"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"
 Name: "{group}\Сервер Skyrim Together"; Filename: "{app}\{#MyServerExeName}"; WorkingDir: "{app}\Data\SkyrimTogetherReborn"
 Name: "{group}\Лаунчер и Сервер Hub"; Filename: "{app}\{#MyLauncherExeName}"; WorkingDir: "{app}"
 Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
 
-Name: "{autodesktop}\Skyrim Together (Играть)"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}\Data\SkyrimTogetherReborn"; IconFilename: "{app}\{#MyAppExeName}"
+Name: "{autodesktop}\Skyrim Together (Играть)"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\{#MyAppExeName}"
 Name: "{autodesktop}\Сервер Skyrim Together"; Filename: "{app}\{#MyServerExeName}"; WorkingDir: "{app}\Data\SkyrimTogetherReborn"
 Name: "{autodesktop}\Skyrim Co-op Hub"; Filename: "{app}\{#MyLauncherExeName}"; WorkingDir: "{app}"
 

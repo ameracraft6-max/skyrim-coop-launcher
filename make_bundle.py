@@ -14,7 +14,7 @@ from downloader import Downloader
 from installer import get_7z_exe
 
 def create_release_bundle():
-    print("=== Создание SkyrimTogether_Release_Bundle.zip для GitHub Releases ===")
+    print("=== Создание skyrim-coop-bundle.zip для GitHub Releases ===")
     cfg = load_config()
     api_key = cfg.get("nexus_api_key", "").strip()
     if not api_key:
@@ -23,7 +23,7 @@ def create_release_bundle():
 
     temp_dir = BASE_DIR / "bundle_staging"
     temp_dir.mkdir(exist_ok=True)
-    out_bundle = BASE_DIR / "SkyrimTogether_Release_Bundle.zip"
+    out_bundle = BASE_DIR / "skyrim-coop-bundle.zip"
 
     # 1. Download Address Library
     print("\n1. Скачивание Address Library...")

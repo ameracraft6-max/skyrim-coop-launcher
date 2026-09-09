@@ -24,7 +24,7 @@ def build():
         "-m", "PyInstaller",
         "--noconsole",
         "--onefile",
-        "--name", "SkyrimCoopLauncher",
+        "--name", "skyrim-coop-launcher",
         f"--icon={ICON_PATH}",
         f"--add-data={ctk_dir};customtkinter",
         f"--add-data={ASSETS_DIR};assets",
@@ -36,7 +36,7 @@ def build():
     print("Команда сборки:", " ".join(cmd))
     res = subprocess.run(cmd, cwd=str(BASE_DIR))
     if res.returncode == 0:
-        exe_path = DIST_DIR / "SkyrimCoopLauncher.exe"
+        exe_path = DIST_DIR / "skyrim-coop-launcher.exe"
         size_mb = exe_path.stat().st_size / (1024 * 1024)
         print(f"\n[УСПЕХ] Сборка завершена успешно!")
         print(f"Готовый файл: {exe_path} ({size_mb:.1f} МБ)")
