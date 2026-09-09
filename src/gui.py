@@ -590,6 +590,8 @@ class SkyrimLauncherApp(ctk.CTk):
             messagebox.showerror("Ошибка", "Исполняемый файл SkyrimTogether.exe не найден!")
             return
         try:
+            if self.game_dir:
+                Installer.fix_address_library_compatibility(self.game_dir)
             exe_path = Path(exe_path_str)
             launch_cwd = str(self.game_dir) if self.game_dir else str(exe_path.parent.parent)
             subprocess.Popen([str(exe_path)], cwd=launch_cwd)
