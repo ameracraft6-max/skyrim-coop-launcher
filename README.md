@@ -58,6 +58,8 @@
 
 ## 🛠 Как выложить на ваш GitHub
 
-1. Создайте репозиторий на GitHub (например, `skyrim-coop-launcher`).
-2. Загрузите файл `SkyrimCoopLauncher.exe` в раздел **Releases** вашего репозитория.
-3. Отправьте ссылку друзьям — им достаточно скачать один `.exe` файл!
+1. Репозиторий подключен: [github.com/ameracraft6-max/skyrim-coop-launcher](https://github.com/ameracraft6-max/skyrim-coop-launcher)
+2. В разделе **Releases** ([Создать новый релиз](https://github.com/ameracraft6-max/skyrim-coop-launcher/releases/new?tag=v1.0.0)) прикрепите два файла:
+   * `SkyrimCoopLauncher.exe`
+   * `SkyrimTogether_Release_Bundle.zip`
+3. Отправьте ссылку друзьям — им достаточно скачать один файл `SkyrimCoopLauncher.exe`!
