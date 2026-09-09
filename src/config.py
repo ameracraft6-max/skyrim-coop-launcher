@@ -8,7 +8,7 @@ CONFIG_FILE_NAME = "skyrim_coop_config.json"
 DEFAULT_CONFIG = {
     "game_path": "",
     "nexus_api_key": "8D2tCOWStyJ0D3GtWlr3cx/VWPtYzX6vz4IhprBbLbDkcRaA4b3L--OFhvg5WzCbhO9tsc--4dcpXLz3EqlKAv3kHDw05Q==",
-    "github_repo": "SkyrimTogether/SkyrimTogetherReborn",
+    "github_repo": "ameracraft6-max/skyrim-coop-launcher",
     "bundle_url": "",
     "installed_version": "",
     "server_port": 10578,
