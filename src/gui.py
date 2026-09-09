@@ -591,7 +591,8 @@ class SkyrimLauncherApp(ctk.CTk):
             return
         try:
             exe_path = Path(exe_path_str)
-            subprocess.Popen([str(exe_path)], cwd=str(exe_path.parent))
+            launch_cwd = str(self.game_dir) if self.game_dir else str(exe_path.parent.parent)
+            subprocess.Popen([str(exe_path)], cwd=launch_cwd)
             self.lbl_action_status.configure(text="Игра запущена! Приятного прохождения!")
         except Exception as e:
             messagebox.showerror("Ошибка запуска", f"Не удалось запустить игру:\n{e}")

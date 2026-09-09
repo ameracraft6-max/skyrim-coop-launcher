@@ -26,3 +26,6 @@ skyrim_coop_config.json
 setup/files/
 setup/output/
 SkyrimTogether_Setup.exe
+temp_te/
+trace_*.py
+scratch/
