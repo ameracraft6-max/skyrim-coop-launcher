@@ -230,6 +230,24 @@ class Installer:
             except Exception as e:
                 raise InstallError(f"Ошибка при распаковке архива: {e}")
 
+        # Auto-merge nested Data/Data folder if archive had top-level Data folder
+        nested_data = game_dir / "Data" / "Data"
+        if nested_data.exists() and nested_data.is_dir():
+            for root, dirs, files in os.walk(nested_data):
+                rel_root = Path(root).relative_to(nested_data)
+                target_dir = game_dir / "Data" / rel_root
+                target_dir.mkdir(parents=True, exist_ok=True)
+                for file in files:
+                    src_file = Path(root) / file
+                    dst_file = target_dir / file
+                    if dst_file.exists():
+                        try:
+                            dst_file.unlink()
+                        except Exception:
+                            pass
+                    shutil.move(str(src_file), str(dst_file))
+            shutil.rmtree(nested_data, ignore_errors=True)
+
         # Auto-convert Address Library files from Format 5 to Format 2
         Installer.fix_address_library_compatibility(game_dir)
 
@@ -258,20 +276,66 @@ class Installer:
         return manifest
 
     @staticmethod
+    def patch_skyrim_together_binary(exe_path: Path):
+        """Patches SkyrimTogether.exe to properly handle unencrypted SteamStub in Skyrim 1.7.104+."""
+        try:
+            if not exe_path.exists():
+                return
+            with open(exe_path, "rb") as f:
+                data = bytearray(f.read())
+
+            hook_rva = 0x406078c4
+            hook_raw = 0x1e7000 + (hook_rva - 0x40586000)
+            original_hook_bytes = bytes.fromhex("48 8d 4d 58 e8 63 e4 ff ff 90")
+            if len(data) <= hook_raw + 10 or data[hook_raw:hook_raw+10] != original_hook_bytes:
+                return
+
+            cave_rva = 0x40a4fb90
+            cave_raw = 0x1e7000 + (cave_rva - 0x40586000)
+
+            import struct
+            disp_hook = cave_rva - (hook_rva + 5)
+            hook_bytes = b"\xe9" + struct.pack("<i", disp_hook) + b"\x90\x90\x90\x90\x90"
+
+            code = bytearray()
+            code += b"\x48\x83\xbd\x58\x01\x00\x00\x00"
+            code += b"\x74\x0e"
+            code += b"\x48\x8d\x4d\x58"
+            call_disp = 0x40605d30 - (cave_rva + len(code) + 5)
+            code += b"\xe8" + struct.pack("<i", call_disp)
+            jmp_disp = 0x406078ce - (cave_rva + len(code) + 5)
+            code += b"\xe9" + struct.pack("<i", jmp_disp)
+            code += b"\x48\x8b\x85\x30\x01\x00\x00"
+            epi_disp = 0x40607b50 - (cave_rva + len(code) + 5)
+            code += b"\xe9" + struct.pack("<i", epi_disp)
+
+            data[hook_raw : hook_raw + len(hook_bytes)] = hook_bytes
+            data[cave_raw : cave_raw + len(code)] = code
+
+            with open(exe_path, "wb") as f:
+                f.write(data)
+            print(f"[Installer] Successfully patched {exe_path.name} for modern SteamStub!")
+        except Exception as e:
+            print(f"[Installer] Warning: Failed to patch {exe_path}: {e}")
+
+    @staticmethod
     def fix_address_library_compatibility(game_dir: Path):
-        """Checks Data/SKSE/Plugins for versionlib files in Format 5 and converts them to Format 2."""
+        """Checks Data/SKSE/Plugins for versionlib files in Format 5 and converts them to Format 2, and patches SkyrimTogether.exe."""
         skse_plugins = game_dir / "Data" / "SKSE" / "Plugins"
-        if not skse_plugins.exists():
-            return
-        for bin_file in skse_plugins.glob("versionlib-*.bin"):
-            try:
-                with open(bin_file, "rb") as f:
-                    header = f.read(4)
-                if len(header) == 4 and int.from_bytes(header, "little") == 5:
-                    print(f"[Installer] Converting Address Library {bin_file.name} to Format 2...")
-                    convert_format5_to_format2(bin_file, bin_file)
-            except Exception as e:
-                print(f"[Installer] Warning: Failed to convert {bin_file}: {e}")
+        if skse_plugins.exists():
+            for bin_file in skse_plugins.glob("versionlib-*.bin"):
+                try:
+                    with open(bin_file, "rb") as f:
+                        header = f.read(4)
+                    if len(header) == 4 and int.from_bytes(header, "little") == 5:
+                        print(f"[Installer] Converting Address Library {bin_file.name} to Format 2...")
+                        convert_format5_to_format2(bin_file, bin_file)
+                except Exception as e:
+                    print(f"[Installer] Warning: Failed to convert {bin_file}: {e}")
+
+        # Also patch SkyrimTogether.exe in Data/SkyrimTogetherReborn
+        st_exe = game_dir / "Data" / "SkyrimTogetherReborn" / "SkyrimTogether.exe"
+        Installer.patch_skyrim_together_binary(st_exe)
 
     @staticmethod
     def uninstall_mod(

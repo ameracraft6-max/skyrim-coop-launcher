@@ -22,7 +22,7 @@ def build():
     cmd = [
         sys.executable,
         "-m", "PyInstaller",
-        "--noconsole",
+        "--console",
         "--onefile",
         "--name", "skyrim-coop-launcher",
         f"--icon={ICON_PATH}",
@@ -37,9 +37,12 @@ def build():
     res = subprocess.run(cmd, cwd=str(BASE_DIR))
     if res.returncode == 0:
         exe_path = DIST_DIR / "skyrim-coop-launcher.exe"
+        root_exe = BASE_DIR / "skyrim-coop-launcher.exe"
+        shutil.copy2(exe_path, root_exe)
         size_mb = exe_path.stat().st_size / (1024 * 1024)
         print(f"\n[УСПЕХ] Сборка завершена успешно!")
         print(f"Готовый файл: {exe_path} ({size_mb:.1f} МБ)")
+        print(f"Скопирован в корень проекта: {root_exe}")
     else:
         print(f"\n[ОШИБКА] Сборка завершилась с ошибкой (код {res.returncode})")
         sys.exit(res.returncode)

@@ -11,7 +11,7 @@ if str(SRC_DIR) not in sys.path:
 def enable_dpi_awareness():
     """Enables crisp per-monitor DPI scaling on Windows 10/11."""
     try:
-        ctypes.windll.shcore.SetProcessDpiAwareness(2)  # Per-monitor DPI aware
+        ctypes.windll.shcore.SetProcessDpiAwareness(2)
     except Exception:
         try:
             ctypes.windll.user32.SetProcessDPIAware()
@@ -20,9 +20,18 @@ def enable_dpi_awareness():
 
 def main():
     enable_dpi_awareness()
-    from gui import SkyrimLauncherApp
-    app = SkyrimLauncherApp()
-    app.mainloop()
+    if "--gui" in sys.argv:
+        try:
+            from gui import SkyrimLauncherApp
+            app = SkyrimLauncherApp()
+            app.mainloop()
+            return
+        except Exception as e:
+            print(f"Не удалось запустить GUI: {e}. Переключение на консоль...")
+
+    from terminal_app import TerminalLauncherApp
+    app = TerminalLauncherApp()
+    app.run()
 
 if __name__ == "__main__":
     main()
