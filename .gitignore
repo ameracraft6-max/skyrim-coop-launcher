@@ -22,3 +22,7 @@ test_*/
 
 # Personal configuration with API keys
 skyrim_coop_config.json
+
+setup/files/
+setup/output/
+SkyrimTogether_Setup.exe
